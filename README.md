@@ -35,6 +35,7 @@ The following outlines the workflow to demo the repo.
       **In practice each profile would correspond to separate dev, staging and prod Databricks workspaces.**
     - This [project.json](https://github.com/niall-turbitt/e2e-mlops/blob/main/.dbx/project.json) file will have to be 
       adjusted accordingly to the connection profiles a user has configured on their local machine.
+    - Make sure your version of `dbx` is up-to-date
 1. Configure Databricks secrets for GitHub Actions (ensure GitHub actions are enabled for you forked project, as the default is off in a forked repo).
     - Within the GitHub project navigate to Secrets under the project settings
     - To run the GitHub actions workflows we require the following GitHub actions secrets:
@@ -81,7 +82,7 @@ The following outlines the workflow to demo the repo.
         1. Run the multitask `PROD-telco-churn-initial-model-train-register` job via an automated job cluster in the prod environment
            (NOTE: multitask jobs can only be run via `dbx deploy; dbx launch` currently).
            ```
-           dbx deploy --jobs=PROD-telco-churn-initial-model-train-register --environment=prod --files-only
+           dbx deploy --jobs=PROD-telco-churn-initial-model-train-register --environment=prod --assets-only --deployment-file conf/deployment.yml
            dbx launch --job=PROD-telco-churn-initial-model-train-register --environment=prod --as-run-submit --trace
            ```
            See the Limitations section below regarding running multitask jobs. In order to reduce cluster start up time
