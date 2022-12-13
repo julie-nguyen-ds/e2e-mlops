@@ -15,9 +15,12 @@ from telco_churn.common import MLflowTrackingConfig, FeatureStoreTableConfig, La
 from telco_churn.model_train_pipeline import ModelTrainPipeline
 from telco_churn.utils.get_spark import spark
 from telco_churn.utils.logger_utils import get_logger
+from mlflow.tracking.client import MlflowClient
 
 fs = FeatureStoreClient()
 _logger = get_logger()
+mlflow_client = MlflowClient()
+
 
 
 @dataclass
@@ -237,5 +240,12 @@ class ModelTrain:
                 _logger.info(f'Registering model: {mlflow_tracking_cfg.model_name}')
                 mlflow.register_model(f'runs:/{mlflow_run.info.run_id}/fs_model',
                                       name=mlflow_tracking_cfg.model_name)
+                model_version = mlflow_client.get_latest_versions(mlflow_tracking_cfg.model_name)[0].version
 
+                mlflow_client.transition_model_version_stage(
+                    name=mlflow_tracking_cfg.model_name,
+                    version=model_version,
+                    stage="Staging",
+                    archive_existing_versions=True
+                )
         _logger.info('==========Model training completed==========')
