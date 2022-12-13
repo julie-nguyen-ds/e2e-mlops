@@ -36,15 +36,15 @@ jobs:
 
       - name: Deploy PROD-telco-churn-model-train job [prod environment]
         run: |
-          dbx deploy --deployment-file conf/deployment.yml --jobs=PROD-telco-churn-model-train --environment=prod
+          dbx deploy --deployment-file conf/deployment.yml --jobs=PROD-telco-churn-model-train --files-only --environment=prod
 
       - name: Deploy PROD-telco-churn-model-deployment job [prod environment]
         run: |
-          dbx deploy --deployment-file conf/deployment.yml --jobs=PROD-telco-churn-model-deployment --environment=prod
+          dbx deploy --deployment-file conf/deployment.yml --jobs=PROD-telco-churn-model-deployment --files-only --environment=prod
 
       - name: Deploy PROD-telco-churn-model-inference-batch job [prod environment]
         run: |
-          dbx deploy --deployment-file conf/deployment.yml --jobs=PROD-telco-churn-model-inference-batch --environment=prod
+          dbx deploy --deployment-file conf/deployment.yml --jobs=PROD-telco-churn-model-inference-batch --files-only --environment=prod
 
       - name: Run PROD-telco-churn-model-train job [prod environment]
         run: |
