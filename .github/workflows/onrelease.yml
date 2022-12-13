@@ -46,6 +46,14 @@ jobs:
         run: |
           dbx deploy --deployment-file conf/deployment.yml --jobs=PROD-telco-churn-model-inference-batch --environment=prod
 
+      - name: Run PROD-telco-churn-model-train job [prod environment]
+        run: |
+          dbx launch --job=PROD-telco-churn-model-train --environment=prod --as-run-submit --trace
+
+      - name: Run PROD-telco-churn-model-deployment job [prod environment]
+        run: |
+          dbx launch --job=PROD-telco-churn-model-deployment --environment=prod --as-run-submit --trace
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
