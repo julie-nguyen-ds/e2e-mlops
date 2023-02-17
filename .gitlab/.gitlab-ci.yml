@@ -1,0 +1,51 @@
+test-job: 
+    only:
+        - merge_requests
+    except:
+        variables:
+            - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME != "main" # Don't triggers test if merge request is not on main branch
+
+    stage: test
+    image: python:3.9
+    variables:
+        DATABRICKS_HOST: $DATABRICKS_STAGING_HOST
+        DATABRICKS_TOKEN: $DATABRICKS_STAGING_TOKEN
+        
+    script:
+        - pip install -r requirements.txt
+        - pip install -r unit-requirements.txt
+        - pip install -e .
+        - pytest tests/unit
+        - dbx deploy --jobs=STAGING-telco-churn-sample-integration-test --environment=staging --files-only
+        - dbx launch --job=STAGING-telco-churn-sample-integration-test --environment=staging --as-run-submit --trace
+        
+deploy-job:
+    stage: deploy
+    image: python:3.9
+    variables:
+        DATABRICKS_HOST: $DATABRICKS_STAGING_HOST
+        DATABRICKS_TOKEN: $DATABRICKS_STAGING_TOKEN
+    rules:
+        - if: $CI_COMMIT_TAG  
+    script:
+        - echo "Running deploy job"
+        - pip install -r requirements.txt
+        - pip install -r unit-requirements.txt
+        - pip install -e .
+        - dbx deploy --deployment-file conf/deployment.yml --jobs=PROD-telco-churn-model-train-deploy-inference --files-only --environment=prod
+        - dbx launch --job=PROD-telco-churn-model-train-deploy-inference --environment=prod --as-run-submit --trace
+        
+release-job:
+    stage: deploy
+    image: python:3.9
+    rules:
+        - if: $CI_COMMIT_TAG  # Run this job when a tag is created
+    needs:
+        - job: deploy-job
+    script:
+        - curl --location --output /usr/local/bin/release-cli "https://gitlab.com/api/v4/projects/gitlab-org%2Frelease-cli/packages/generic/release-cli/latest/release-cli-linux-amd64" # download release-cli
+        - chmod +x /usr/local/bin/release-cli
+        - echo "Running release job"
+    release:
+        tag_name: '$CI_COMMIT_TAG'
+        description: '$CI_COMMIT_TAG'
