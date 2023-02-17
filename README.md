@@ -27,18 +27,21 @@ The following pipelines currently defined within the package are:
 The following outlines the workflow to demo the repo.
 
 ### Set up
-1. Fork https://github.com/jeannefukumaru/e2e-mlops
+1. Fork https://github.com/julie-nguyen-ds/e2e-mlops
 1. Configure [Databricks CLI connection profile](https://docs.databricks.com/dev-tools/cli/index.html#connection-profiles)
     - The project is designed to use 3 different Databricks CLI connection profiles: dev, staging and prod. 
-      These profiles are set in [e2e-mlops/.dbx/project.json](https://github.com/niall-turbitt/e2e-mlops/blob/main/.dbx/project.json).
+      These profiles are set in [e2e-mlops/.dbx/project.json](https://github.com/julie-nguyen-ds/e2e-mlops/blob/main/.dbx/project.json).
     - Note that for demo purposes we use the same connection profile for each of the 3 environments. 
       **In practice each profile would correspond to separate dev, staging and prod Databricks workspaces.**
     - This [project.json](https://github.com/niall-turbitt/e2e-mlops/blob/main/.dbx/project.json) file will have to be 
       adjusted accordingly to the connection profiles a user has configured on their local machine.
     - Make sure your version of `dbx` is up-to-date
-1. Configure Databricks secrets for GitHub Actions (ensure GitHub actions are enabled for you forked project, as the default is off in a forked repo).
-    - Within the GitHub project navigate to Secrets under the project settings
-    - To run the GitHub actions workflows we require the following GitHub actions secrets:
+    
+1. **For GitHub:** Configure Databricks secrets for GitHub Actions (ensure GitHub actions are enabled for you forked project, as the default is off in a forked repo). Within the GitHub project navigate to Secrets under the project settings.
+   
+   **For GitLab:** Configure Databricks secrets in GitLab CI/CD Variables by navigating to your project Settings > CI/CD > Variables (expand). Remove "Protect Variable" (else other branch cannot read the variables, needed when launching integration tests) and Tick "Mask Variable" for security, so that tokens won't appear in your pipeline logs. 
+   
+    - To run the workflows we require the following variables secrets set:
         - `DATABRICKS_STAGING_HOST`
             - URL of Databricks staging workspace
         - `DATABRICKS_STAGING_TOKEN`
@@ -48,7 +51,8 @@ The following outlines the workflow to demo the repo.
         - `DATABRICKS_PROD_TOKEN`
             - [Databricks access token](https://docs.databricks.com/dev-tools/api/latest/authentication.html) for production workspace
         - `GH_TOKEN`
-            - GitHub [personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)
+            - GitHub/GitLab personal access token. [GitHub Doc](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) | [GitLab Doc](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html)
+  
 
     #### ASIDE: Starting from scratch
     
@@ -57,13 +61,13 @@ The following outlines the workflow to demo the repo.
         - The table e2e_mlops_testing.churn_features will be created when the feature-table-creation pipeline is triggered.
     - MLflow experiment
         - MLflow Experiments during model training and model deployment will be used in both the dev and prod environments. 
-          The paths to these experiments are configured in [conf/deployment.yml](https://github.com/niall-turbitt/e2e-mlops/blob/main/conf/deployment.yml).
+          The paths to these experiments are configured in [conf/deployment.yml](https://github.com/julie-nguyen-ds/e2e-mlops/blob/main/conf/deployment.yml).
         - For demo purposes, we delete these experiments if they exist to begin from a blank slate.
     - Model Registry
         - Delete Model in MLflow Model Registry if exists.
     
     **NOTE:** As part of the `initial-model-train-register` multitask job, the first task `demo-setup` will delete these, 
-   as specified in [`demo_setup.yml`](https://github.com/niall-turbitt/e2e-mlops/blob/main/conf/job_configs/demo_setup.yml).
+   as specified in [`demo_setup.yml`](https://github.com/julie-nguyen-ds/e2e-mlops/blob/main/conf/job_configs/demo_setup.yml).
 
 ### Workflow
 
@@ -87,9 +91,9 @@ The following outlines the workflow to demo the repo.
            ```
            See the Limitations section below regarding running multitask jobs. In order to reduce cluster start up time
            you may want to consider using a [Databricks pool](https://docs.databricks.com/clusters/instance-pools/index.html), 
-           and specify this pool ID in [`conf/deployment.yml`](https://github.com/niall-turbitt/e2e-mlops/blob/main/conf/deployment.yml).
+           and specify this pool ID in [`conf/deployment.yml`](https://github.com/julie-nguyen-ds/e2e-mlops/blob/main/conf/deployment.yml).
     - `PROD-telco-churn-initial-model-train-register` tasks:
-        1. Demo setup task steps ([`demo-setup`](https://github.com/niall-turbitt/e2e-mlops/blob/main/telco_churn/jobs/demo_setup_job.py))
+        1. Demo setup task steps ([`demo-setup`](https://github.com/julie-nguyen-ds/e2e-mlops/blob/main/telco_churn/jobs/demo_setup_job.py))
             1. Delete Model Registry model if exists (archive any existing models).
             1. Delete MLflow experiment if exists.
             1. Delete Feature Table if exists.
@@ -107,8 +111,8 @@ The following outlines the workflow to demo the repo.
 
     - Create new “dev/new_model” branch 
         - `git checkout -b  dev/new_model`
-    - Make a change to the [`model_train.yml`](https://github.com/niall-turbitt/e2e-mlops/blob/main/conf/job_configs/model_train.yml) config file, updating `max_depth` under model_params from 4 to 8
-        - Optional: change run name under mlflow params in [`model_train.yml`](https://github.com/niall-turbitt/e2e-mlops/blob/main/conf/job_configs/model_train.yml) config file
+    - Make a change to the [`model_train.yml`](https://github.com/julie-nguyen-ds/e2e-mlops/blob/main/conf/job_configs/model_train.yml) config file, updating `max_depth` under model_params from 4 to 8
+        - Optional: change run name under mlflow params in [`model_train.yml`](https://github.com/julie-nguyen-ds/e2e-mlops/blob/main/conf/job_configs/model_train.yml) config file
     - Create pull request, to instantiate a request to merge the branch dev/new_model into main. 
 
 * On pull request the following steps are triggered in the GitHub Actions workflow:
@@ -125,7 +129,7 @@ The following outlines the workflow to demo the repo.
     - Push tag
         - `git push origin <tag_name>`
 
-    - On pushing this the following steps are triggered in the [`onrelease.yml`](https://github.com/niall-turbitt/e2e-mlops/blob/main/.github/workflows/onrelease.yml) GitHub Actions workflow:
+    - On pushing this the following steps are triggered in the [`onrelease.yml`](https://github.com/julie-nguyen-ds/e2e-mlops/blob/main/.github/workflows/onrelease.yml) GitHub Actions workflow:
         1. Trigger unit tests.
         1. Deploy `PROD-telco-churn-model-train` job to the prod environment.
         1. Deploy `PROD-telco-churn-model-deployment` job to the prod environment.
