@@ -41,18 +41,20 @@ The following outlines the workflow to demo the repo.
    
    **For GitLab:** Configure Databricks secrets in GitLab CI/CD Variables by navigating to your project Settings > CI/CD > Variables (expand). Remove "Protect Variable" (else other branch cannot read the variables, needed when launching integration tests) and Tick "Mask Variable" for security, so that tokens won't appear in your pipeline logs. 
    
-    - To run the workflows we require the following variables secrets set:
-        - `DATABRICKS_STAGING_HOST`
-            - URL of Databricks staging workspace
-        - `DATABRICKS_STAGING_TOKEN`
-            - [Databricks access token](https://docs.databricks.com/dev-tools/api/latest/authentication.html) for staging workspace
-        - `DATABRICKS_PROD_HOST`
-            - URL of Databricks production workspace
-        - `DATABRICKS_PROD_TOKEN`
-            - [Databricks access token](https://docs.databricks.com/dev-tools/api/latest/authentication.html) for production workspace
-        - `GH_TOKEN`
-            - GitHub/GitLab personal access token. [GitHub Doc](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) | [GitLab Doc](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html)
-  
+   **PS:** The `.gitlab-ci.yml` file is stored in the `.gitlab` folder and should be moved to the project root (e2e-mlops folder). 
+   
+- The variables secret to set are as follow:
+    - `DATABRICKS_STAGING_HOST`
+        - URL of Databricks staging workspace
+    - `DATABRICKS_STAGING_TOKEN`
+        - [Databricks access token](https://docs.databricks.com/dev-tools/api/latest/authentication.html) for staging workspace
+    - `DATABRICKS_PROD_HOST`
+        - URL of Databricks production workspace
+    - `DATABRICKS_PROD_TOKEN`
+        - [Databricks access token](https://docs.databricks.com/dev-tools/api/latest/authentication.html) for production workspace
+    - `GH_TOKEN`
+        - GitHub/GitLab personal access token. [GitHub Doc](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) | [GitLab Doc](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html)
+
 
     #### ASIDE: Starting from scratch
     
