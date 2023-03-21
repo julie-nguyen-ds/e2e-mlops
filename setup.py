@@ -7,6 +7,6 @@ setup(
     setup_requires=['wheel'],
     version=__version__,
     description='Demo repository implementing an end-to-end MLOps workflow on Databricks. Project derived from dbx '
-                'basic python template',
+                'basic python template.',
     authors='Joseph Bradley, Rafi Kurlansik, Matthew Thomson, Niall Turbitt'
 )
